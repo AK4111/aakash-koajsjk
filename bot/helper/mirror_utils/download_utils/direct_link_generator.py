@@ -2,27 +2,34 @@
 #
 # Licensed under the Raphielscape Public License, Version 1.c (the "License");
 # you may not use this file except in compliance with the License.
-
+#
 """ Helper Module containing various sites direct links generators. This module is copied and modified as per need
 from https://github.com/AvinashReddy3108/PaperplaneExtended . I hereby take no credit of the following code other
 than the modifications. See https://github.com/AvinashReddy3108/PaperplaneExtended/commits/master/userbot/modules/direct_links.py
 for original authorship. """
 
-import requests
-import cloudscraper
+import math
 
-from math import pow, floor
 from requests import get as rget, head as rhead, post as rpost, Session as rsession
-from re import findall as re_findall, sub as re_sub, match as re_match, search as re_search, compile as re_compile, DOTALL
+from re import findall as re_findall, sub as re_sub, match as re_match, search as re_search
+import requests
+import re
+import os
+import base64
+import cloudscraper
+from lxml import etree
 from time import sleep, time
+from base64 import b64decode
 from urllib.parse import urlparse, unquote, parse_qs
 from json import loads as jsonloads
 from lk21 import Bypass
 from lxml import etree
 from cfscrape import create_scraper
+import cloudscraper
 from bs4 import BeautifulSoup
-from base64 import standard_b64encode, b64decode
-from playwright.sync_api import Playwright, sync_playwright, expect
+from base64 import standard_b64encode
+from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 from bot import LOGGER, config_dict
 from bot.helper.telegram_helper.bot_commands import BotCommands
@@ -79,8 +86,6 @@ def direct_link_generator(link: str):
         return try2link(link)
     elif 'ez4short.com' in link:
         return ez4(link)
-    elif 'ouo.io' in link or 'ouo.press' in link:
-        return ouo(link)
     elif is_gdtot_link(link):
         return gdtot(link)
     elif is_unified_link(link):
@@ -91,8 +96,6 @@ def direct_link_generator(link: str):
         return sharer_pw_dl(link)
     elif is_sharedrive_link(link):
         return shareDrive(link)
-    elif is_filepress_link(link):
-        return filepress(link)
     elif any(x in link for x in fmed_list):
         return fembed(link)
     elif any(x in link for x in ['sbembed.com', 'watchsb.com', 'streamsb.net', 'sbplay.org']):
@@ -156,47 +159,7 @@ def ez4(url):
     r = client.post(f"{DOMAIN}/links/go", data=data, headers=h)
     try:
         return r.json()['url']
-    except: return "Something went wrong :("
-
-ANCHOR_URL = 'https://www.google.com/recaptcha/api2/anchor?ar=1&k=6Lcr1ncUAAAAAH3cghg6cOTPGARa8adOf-y9zv2x&co=aHR0cHM6Ly9vdW8uaW86NDQz&hl=en&v=1B_yv3CBEV10KtI2HJ6eEXhJ&size=invisible&cb=4xnsug1vufyr'
-
-def RecaptchaV3(ANCHOR_URL):
-    url_base = 'https://www.google.com/recaptcha/'
-    post_data = "v={}&reason=q&c={}&k={}&co={}"
-    client = requests.Session()
-    client.headers.update({
-    'content-type': 'application/x-www-form-urlencoded'
-    })
-    matches = re_findall('([api2|enterprise]+)\/anchor\?(.*)', ANCHOR_URL)[0]
-    url_base += matches[0]+'/'
-    params = matches[1]
-    res = client.get(url_base+'anchor', params=params)
-    token = re_findall(r'"recaptcha-token" value="(.*?)"', res.text)[0]
-    params = dict(pair.split('=') for pair in params.split('&'))
-    post_data = post_data.format(params["v"], token, params["k"], params["co"])
-    res = client.post(url_base+'reload', params=f'k={params["k"]}', data=post_data)
-    answer = re_findall(r'"rresp","(.*?)"', res.text)[0]    
-    return answer
-
-def ouo(url: str) -> str:
-    client = requests.Session()
-    tempurl = url.replace("ouo.press", "ouo.io")
-    p = urlparse(tempurl)
-    id = tempurl.split('/')[-1]
-    res = client.get(tempurl)
-    next_url = f"{p.scheme}://{p.hostname}/go/{id}"
-    for _ in range(2):
-        if res.headers.get('Location'):
-            break
-        bs4 = BeautifulSoup(res.content, 'html.parser')
-        inputs = bs4.form.findAll("input", {"name": re_compile(r"token$")})
-        data = { input.get('name'): input.get('value') for input in inputs }        
-        ans = RecaptchaV3(ANCHOR_URL)
-        data['x-token'] = ans
-        h = {'content-type': 'application/x-www-form-urlencoded'}        
-        res = client.post(next_url, data=data, headers=h, allow_redirects=False)
-        next_url = f"{p.scheme}://{p.hostname}/xreallcygo/{id}"
-    return res.headers.get('Location')        
+    except: return "Something went wrong :("        
         
 def zippy_share(url: str) -> str:
     base_url = re_search('http.+.zippyshare.com', url).group()
@@ -209,13 +172,13 @@ def zippy_share(url: str) -> str:
 
     try:
         var_a = re_findall(r"var.a.=.(\d+)", js_script)[0]
-        mtk = int(pow(int(var_a),3) + 3)
+        mtk = int(math.pow(int(var_a),3) + 3)
         uri1 = re_findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
         uri2 = re_findall(r"\+\"/(.*?)\"", js_script)[0]
     except:
         try:
             a, b = re_findall(r"var.[ab].=.(\d+)", js_script)
-            mtk = eval(f"{floor(int(a)/3) + int(a) % int(b)}")
+            mtk = eval(f"{math.floor(int(a)/3) + int(a) % int(b)}")
             uri1 = re_findall(r"\.href.=.\"/(.*?)/\"", js_script)[0]
             uri2 = re_findall(r"\)\+\"/(.*?)\"", js_script)[0]
         except:
@@ -540,13 +503,13 @@ def gdtot(url: str) -> str:
     if not config_dict['GDTOT_CRYPT']:
         raise DirectDownloadLinkException("ERROR: CRYPT cookie not provided")
 
-    match = re_findall(r'https?://(.+)\.gdtot\.(.+)\/\S+\/\S+', url)[0]
+    match = re.findall(r'https?://(.+)\.gdtot\.(.+)\/\S+\/\S+', url)[0]
 
     with rsession() as client:
         client.cookies.update({'crypt': config_dict['GDTOT_CRYPT']})
         client.get(url)
         res = client.get(f"https://{match[0]}.gdtot.{match[1]}/dld?id={url.split('/')[-1]}")
-    matches = re_findall('gd=(.*?)&', res.text)
+    matches = re.findall('gd=(.*?)&', res.text)
     try:
         decoded_id = b64decode(str(matches[0])).decode('utf-8')
     except:
@@ -574,7 +537,7 @@ def gen_payload(data, boundary=f'{"-"*6}_'):
 
 
 def parse_infou(data):
-    info = re_findall(">(.*?)<\/li>", data)
+    info = re.findall(">(.*?)<\/li>", data)
     info_parsed = {}
     for item in info:
         kv = [s.strip() for s in item.split(":", maxsplit=1)]
@@ -597,7 +560,7 @@ def unified(url: str) -> str:
     account_login(client, url, account["email"], account["passwd"])
 
     res = client.get(url)
-    key = re_findall('"key",\s+"(.*?)"', res.text)[0]
+    key = re.findall('"key",\s+"(.*?)"', res.text)[0]
 
     ddl_btn = etree.HTML(res.content).xpath("//button[@id='drc']")
 
@@ -658,9 +621,9 @@ def unified(url: str) -> str:
 def parse_info(res, url):
     info_parsed = {}
     if 'drivebuzz' in url:
-        info_chunks = re_findall('<td\salign="right">(.*?)<\/td>', res.text)
+        info_chunks = re.findall('<td\salign="right">(.*?)<\/td>', res.text)
     else:
-        info_chunks = re_findall(">(.*?)<\/td>", res.text)
+        info_chunks = re.findall(">(.*?)<\/td>", res.text)
     for i in range(0, len(info_chunks), 2):
         info_parsed[info_chunks[i]] = info_chunks[i + 1]
     return info_parsed
@@ -681,8 +644,6 @@ def udrive(url: str) -> str:
     if "katdrive" in url:
         client.cookies.update({"crypt": config_dict['KATDRIVE_CRYPT']})
     if "kolop" in url:
-        if "kolop.icu" in url:
-            url = url.replace(".icu",".cyou")
         client.cookies.update({"crypt": config_dict['KATDRIVE_CRYPT']})
     if "drivefire" in url:
         client.cookies.update({"crypt": config_dict['DRIVEFIRE_CRYPT']})
@@ -721,7 +682,7 @@ def udrive(url: str) -> str:
         flink = f"https://drive.google.com/open?id={gd_id}"
         return flink
     else:
-        gd_id = re_findall('gd=(.*)', res, DOTALL)[0]
+        gd_id = re.findall('gd=(.*)', res, re.DOTALL)[0]
 
     info_parsed["gdrive_url"] = f"https://drive.google.com/open?id={gd_id}"
     info_parsed["src_url"] = url
@@ -737,7 +698,7 @@ def sharer_pw_dl(url: str)-> str:
     client.cookies["laravel_session"] = config_dict['laravel_session']
     
     res = client.get(url)
-    token = re_findall("_token\s=\s'(.*?)'", res.text, DOTALL)[0]
+    token = re.findall("_token\s=\s'(.*?)'", res.text, re.DOTALL)[0]
     data = { '_token': token, 'nl' :1}
     headers={ 'content-type': 'application/x-www-form-urlencoded; charset=UTF-8', 'x-requested-with': 'XMLHttpRequest'}
 
@@ -772,7 +733,7 @@ def shareDrive(url,directLogin=True):
         'Origin' : f'https://{urlparse(url).netloc}/',
         'referer' : url,
         'User-Agent' : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36 Edg/107.0.1418.35',
-        'X-Requested-With' : 'XMLHttpRequest'
+        'X-Requested-With	' : 'XMLHttpRequest'
     }
 
     if directLogin==True:
@@ -810,40 +771,3 @@ def shareDrive(url,directLogin=True):
             return driveUrl
         else:
             raise DirectDownloadLinkException("ERROR! File Not Found or User rate exceeded !!")
-
-def prun(playwright: Playwright, link:str) -> str:
-    """ filepress google drive link generator
-    By https://t.me/maverick9099
-    GitHub: https://github.com/majnurangeela"""
-    
-    browser = playwright.chromium.launch()
-    context = browser.new_context()
-    
-    page = context.new_page()
-    page.goto(link)
-    
-    firstbtn = page.locator("xpath=//div[text()='Direct Download']/parent::button")
-    expect(firstbtn).to_be_visible()
-    firstbtn.click()
-    sleep(10)
-    
-    secondBtn = page.get_by_role("button", name="Download Now")
-    expect(secondBtn).to_be_visible()
-    with page.expect_navigation():
-        secondBtn.click()
- 
-    Flink = page.url
-    
-    context.close()
-    browser.close()
-    
-    if 'drive.google.com' in Flink:
-        return Flink
-    else:
-        raise DirectDownloadLinkException("Unable To Get Google Drive Link!")
-    
-    
-def filepress(link:str) -> str:
-    with sync_playwright() as playwright:
-        flink = prun(playwright, link)
-        return flink            

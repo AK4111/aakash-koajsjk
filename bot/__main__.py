@@ -367,8 +367,6 @@ if config_dict['SET_BOT_COMMANDS']:
 
 def main():
 
-    version = "4.3.0"
-
     if config_dict['WALLCRAFT_CATEGORY']:
         for page in range(1,20):
             r2 = rget(f"https://wallpaperscraft.com/catalog/{config_dict['WALLCRAFT_CATEGORY']}/1280x720/page{page}")
@@ -424,20 +422,22 @@ def main():
                 if ospath.isfile(".restartmsg"):
                     with open(".restartmsg") as f:
                         chat_id, msg_id = map(int, f)
-                    msg = f"😎 Restarted Successfully❗\n"
+                    msg = f"😎Restarted successfully❗\n"
+                    msg += f"📅DATE: {date}\n"
+                    msg += f"⌚TIME: {time}\n"
+                    msg += f"🌐TIMEZONE: {timez}\n"
                 else:
-                    msg = f"😎 Bot Restarted!\n"
-                msg += f"📅 DATE: {date}\n"
-                msg += f"⌚ TIME: {time}\n"
-                msg += f"🌐 TIMEZONE: {timez}\n"
-                msg += f"🤖 VERSION: {version}"
+                    msg = f"😎Bot Restarted!\n"
+                    msg += f"📅DATE: {date}\n"
+                    msg += f"⌚TIME: {time}\n"
+                    msg += f"🌐TIMEZONE: {timez}"
 
                 for tag, links in data.items():
                     msg += f"\n{tag}: "
                     for index, link in enumerate(links, start=1):
                         msg += f" <a href='{link}'>{index}</a> |"
                         if len(msg.encode()) > 4000:
-                            if '😎 Restarted Successfully❗' in msg and cid == chat_id:
+                            if '😎Restarted successfully❗' in msg and cid == chat_id:
                                 try:
                                     bot.editMessageText(msg, chat_id, msg_id, parse_mode='HTML', disable_web_page_preview=True)
                                 except:
@@ -449,7 +449,7 @@ def main():
                                 except Exception as e:
                                     LOGGER.error(e)
                             msg = ''
-                if '😎 Restarted Successfully❗' in msg and cid == chat_id:
+                if '😎Restarted successfully❗' in msg and cid == chat_id:
                     try:
                         bot.editMessageText(msg, chat_id, msg_id, parse_mode='HTML', disable_web_page_preview=True)
                     except:
@@ -465,14 +465,10 @@ def main():
         with open(".restartmsg") as f:
             chat_id, msg_id = map(int, f)
         try:
-            msg = f"😎 Restarted Successfully❗\n"
-            msg += f"📅 DATE: {date}\n"
-            msg += f"⌚ TIME: {time}\n"
-            msg += f"🌐 TIMEZONE: {timez}\n"
-            msg += f"🤖 VERSION: {version}"            
+            msg = f"😎Restarted successfully❗\n📅DATE: {date}\n⌚TIME: {time}\n🌐TIMEZONE: {timez}\n"
             bot.edit_message_text(msg, chat_id, msg_id)
-        except Exception as e:
-            LOGGER.info(e)
+        except:
+            pass        
         osremove(".restartmsg")
 
 

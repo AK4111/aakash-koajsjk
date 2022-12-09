@@ -30,6 +30,8 @@ basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
 
 LOGGER = getLogger(__name__)
 
+TIME_GAP_STORE = {}
+
 load_dotenv('config.env', override=True)
 
 Interval = []
@@ -40,7 +42,6 @@ INDEX_URLS = []
 user_data = {}
 aria2_options = {}
 qbit_options = {}
-TIME_GAP_STORE = {}
 GLOBAL_EXTENSION_FILTER = ['.aria2']
 
 try:
@@ -476,9 +477,6 @@ SHORTENER_API = environ.get('SHORTENER_API', '')
 if len(SHORTENER) == 0 or len(SHORTENER_API) == 0:
     SHORTENER = ''
     SHORTENER_API = ''
-SHORTENER = (SHORTENER.replace("'", '').replace('"', '').replace('[', '').replace(']', '').replace(",", "")).split()
-SHORTENER_API = (SHORTENER_API.replace("'", '').replace('"', '').replace('[', '').replace(']', '').replace(",", "")).split()
-
 
 UNIFIED_EMAIL = environ.get('UNIFIED_EMAIL', '')
 if len(UNIFIED_EMAIL) == 0:

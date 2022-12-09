@@ -31,7 +31,7 @@ from .listener import MirrorLeechListener
 
 def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False):
     buttons = ButtonMaker()
-
+	
     if config_dict['FSUB']:
         try:
             user = bot.get_chat_member(f"{config_dict['FSUB_CHANNEL_ID']}", message.from_user.id)
@@ -97,7 +97,6 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
     is_udrive = False
     is_sharer = False
     is_sharedrive = False
-    is_filepress = False
     index = 1
     ratio = None
     seed_time = None
@@ -196,7 +195,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             help_msg += "\n<code>/qbcmd</code> <b>d</b> {link} or by replying to {file/link}.\n"
             help_msg += "To specify ratio and seed time. Ex: d:0.7:10 (ratio and time) or d:0.7 "
             help_msg += "(only ratio) or d::10 (only time) where time in minutes"
-            help_msg += "\n\n<b>Multi links only by replying to first link/file:</b>" 
+            help_msg += "\n\n<b>Multi links only by replying to first link/file:</b>"																					 
             help_msg += "\n<code>/command</code> 10(number of links/files)"
         else:
             help_msg += "\n<code>/cmd</code> {link} |newname pswd: xx [zip/unzip]"
@@ -228,7 +227,6 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 is_udrive = is_udrive_link(link)
                 is_sharer = is_sharer_link(link)
                 is_sharedrive = is_sharedrive_link(link)
-                is_filepress = is_filepress_link(link)
                 link = direct_link_generator(link)
                 LOGGER.info(f"Generated link: {link}")
             except DirectDownloadLinkException as e:
@@ -270,7 +268,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             gmsg += f"Use /{BotCommands.UnzipMirrorCommand} to extracts Google Drive archive file"
             sendMessage(gmsg, bot, message)
         else:
-            Thread(target=add_gd_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepress)).start()
+            Thread(target=add_gd_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive)).start()
     elif is_mega_link(link):
         Thread(target=add_mega_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/', listener, name)).start()
     elif isQbit and (is_magnet(link) or ospath.exists(link)):
@@ -300,6 +298,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         multi -= 1
         sleep(4)
         Thread(target=_mirror_leech, args=(bot, nextmsg, isZip, extract, isQbit, isLeech)).start()
+
 
 
 def mirror(update, context):

@@ -32,6 +32,7 @@ python-telegram-bot
 qbittorrent-api
 requests
 speedtest-cli
+selenium
 telegraph
 tenacity
 tgCrypto
@@ -39,4 +40,3 @@ urllib3
 xattr
 yt-dlp
 waybackpy
-playwright
