@@ -77,7 +77,6 @@ def add_qb_torrent(link, path, listener, ratio, seed_time):
         ext_hash = tor_info.hash
         with download_dict_lock:
             download_dict[listener.uid] = QbDownloadStatus(listener, ext_hash)
-            LOGGER.info(download_dict)
         with qb_download_lock:
             STALLED_TIME[ext_hash] = time()
             if not QbInterval:
@@ -87,7 +86,7 @@ def add_qb_torrent(link, path, listener, ratio, seed_time):
         LOGGER.info(f"QbitDownload started: {tor_info.name} - Hash: {ext_hash}")
         if config_dict['BASE_URL'] and listener.select:
             if link.startswith('magnet:'):
-                metamsg = "Downloading Metadata, wait then you can select files. Use torrent file to avoid this wait."
+                metamsg = "Downloading Metadata,\n\nWait then you can select files. Use torrent file to avoid this wait."
                 meta = sendMessage(metamsg, listener.bot, listener.message)
                 while True:
                     tor_info = client.torrents_info(torrent_hashes=ext_hash)
@@ -103,7 +102,8 @@ def add_qb_torrent(link, path, listener, ratio, seed_time):
                         return deleteMessage(listener.bot, meta)
             client.torrents_pause(torrent_hashes=ext_hash)
             SBUTTONS = bt_selection_buttons(ext_hash)
-            msg = "Your download paused. Choose files then press Done Selecting button to start downloading."
+            msg = f"<b>Name</b>: <code>{tor_info.name}</code>\n\nYour download paused. Choose files then press Done Selecting button to start downloading." \
+                "\n<b><i>Your download will not start automatically</i></b>"
             sendMessage(msg, listener.bot, listener.message, SBUTTONS)
         else:
             sendStatusMessage(listener.message, listener.bot)
