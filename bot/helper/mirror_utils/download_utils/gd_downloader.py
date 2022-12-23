@@ -9,7 +9,7 @@ from bot.helper.ext_utils.bot_utils import get_readable_file_size, is_sudo, is_p
 from bot.helper.ext_utils.fs_utils import get_base_name, check_storage_threshold
 
 
-def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepressfrom_queue=False):
+def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepress, from_queue=False):
     res, size, name, files = GoogleDriveHelper().helper(link)
     if res != "":
         return sendMessage(res, listener.bot, listener.message)
