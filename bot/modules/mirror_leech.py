@@ -324,7 +324,6 @@ def start_ml(extra, s_listener):
             except DirectDownloadLinkException as e:
                 LOGGER.info(str(e))
                 if str(e).startswith('ERROR:'):
-                    delete_links(bot, message)
                     return editMessage(escape(str(e)), _tempmsg)
             _tempmsg.delete()
     elif isQbit and not is_magnet(link):
@@ -336,7 +335,6 @@ def start_ml(extra, s_listener):
             try:
                 resp = request('GET', link, timeout=10, headers = {'user-agent': 'Wget/1.12'})
                 if resp.status_code != 200:
-                    delete_links(bot, message)
                     return sendMessage(f"{tag} ERROR: link got HTTP response: {resp.status_code}", bot, message)
                 file_name = str(time()).replace(".", "") + ".torrent"
                 with open(file_name, "wb") as t:
@@ -348,7 +346,6 @@ def start_ml(extra, s_listener):
                     link = error.split("'")[1]
                 else:
                     LOGGER.error(str(e))
-                    delete_links(bot, message)
                     return sendMessage(f"{tag} {error}", bot, message)
         else:
             msg = "qBittorrent for torrents only. if you are trying to dowload torrent then report."
