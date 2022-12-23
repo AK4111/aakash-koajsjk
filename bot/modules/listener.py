@@ -1,4 +1,3 @@
-from requests import utils as rutils
 from subprocess import run as srun
 from random import choice
 from pathlib import PurePath
@@ -12,7 +11,7 @@ from subprocess import Popen
 from html import escape
 from threading import Thread
 from telegram import ParseMode, InlineKeyboardButton
-
+from requests.utils import quote as rquote
 from bot import *
 from bot.helper.ext_utils.bot_utils import *
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download, clean_target
@@ -517,7 +516,7 @@ class MirrorLeechListener:
             LOGGER.info(f'Done Uploading {file_}')
             _, INDEXURL = getGDriveUploadUtils(user_id_, self.u_index, self.c_index)
             if INDEX_URL:= INDEXURL:
-                url_path = rutils.quote(f'{file_}')
+                url_path = rquote(f'{file_}', safe='')
                 share_url = f'{INDEX_URL}/{url_path}'
                 if typ == "Folder":
                     share_url += '/'
