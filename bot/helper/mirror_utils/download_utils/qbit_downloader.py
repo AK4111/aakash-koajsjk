@@ -13,7 +13,7 @@ from bot.helper.ext_utils.bot_utils import (bt_selection_buttons,
                                             get_readable_file_size,
                                             get_readable_time,
                                             getDownloadByGid, new_thread,
-                                            setInterval)
+                                            setInterval, is_sudo, is_paid)
 from bot.helper.ext_utils.fs_utils import (check_storage_threshold,
                                            clean_unwanted, get_base_name)
 from bot.helper.mirror_utils.status_utils.qbit_download_status import QbDownloadStatus
