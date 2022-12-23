@@ -270,7 +270,7 @@ def __qb_listener():
                         STOP_DUP_CHECK.add(tor_info.hash)
                         __stop_duplicate(client, tor_info)
                     if tor_info.hash not in SIZE_CHECKED and any([config_dict['STORAGE_THRESHOLD'],config_dict['TORRENT_LIMIT'],
-                                                                config_dict['LEECH_LIMIT']]) and user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id)::
+                                                                config_dict['LEECH_LIMIT']]) and user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id):
                         SIZE_CHECKED.add(tor_info.hash)
                         Thread(target=__size_checked, args=(client, tor_info)).start()
                 elif tor_info.state == "stalledDL":
