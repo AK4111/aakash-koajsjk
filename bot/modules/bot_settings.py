@@ -13,6 +13,7 @@ from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.bot_utils import new_thread, setInterval, new_thread
 from bot.helper.ext_utils.db_handler import DbManger
 from bot.modules.search import initiate_search_tools
+from shutil import rmtree
 
 START = 0
 STATE = 'view'
@@ -1008,12 +1009,14 @@ def update_private_file(update, context, omsg):
         file_name = message.text
         fn = file_name.rsplit('.zip', 1)[0]
         if ospath.exists(fn):
-            remove(fn)
-        if fn == 'accounts':
-            config_dict['USE_SERVICE_ACCOUNTS'] = False
-            if DATABASE_URL:
-                DbManger().update_config({'USE_SERVICE_ACCOUNTS': False})
-        elif file_name in ['.netrc', 'netrc']:
+            if fn == 'accounts':
+                rmtree(fn)
+                config_dict['USE_SERVICE_ACCOUNTS'] = False
+                if DATABASE_URL:
+                    DbManger().update_config({'USE_SERVICE_ACCOUNTS': False})
+            else:
+                remove(fn)
+        if file_name in ['.netrc', 'netrc']:
             srun(["touch", ".netrc"])
             srun(["cp", ".netrc", "/root/.netrc"])
             srun(["chmod", "600", ".netrc"])
