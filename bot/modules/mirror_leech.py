@@ -1,6 +1,6 @@
 from base64 import b64encode
 from pyrogram import enums
-from re import match, search as re_search, split as re_split
+from re import match as re_match, search as re_search, split as re_split
 from time import sleep, time
 from os import path as ospath, remove as osremove, listdir, walk
 from shutil import rmtree
@@ -9,7 +9,7 @@ from subprocess import run as srun
 from pathlib import PurePath
 from telegram.ext import CommandHandler, CallbackQueryHandler
 from telegram import ParseMode, InlineKeyboardButton
-from requests import request
+
 from bot import *
 from bot.helper.ext_utils.bot_utils import *
 from bot.helper.ext_utils.timegap import timegap_check
@@ -295,22 +295,15 @@ def start_ml(extra, s_listener):
     seed_time = extra[3]
     c_index = int(extra[4])
     u_index = extra[5]
-    if not isZip and not extract and not isLeech and is_gdrive_link(link):
-        gmsg = f"Use /{BotCommands.CloneCommand} to clone Google Drive file/folder\n\n"
-        gmsg += f"Use /{BotCommands.ZipMirrorCommand[0]} to make zip of Google Drive folder\n\n"
-        gmsg += f"Use /{BotCommands.UnzipMirrorCommand[0]} to extracts Google Drive archive folder/file\n\n"
-        gmsg += f"Use /{BotCommands.LeechCommand[0]} to upload on telegram"
-        return sendMessage(gmsg, bot, message)
+
     listener = MirrorLeechListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, select, seed, c_index, u_index)
     if link == 'tg_file':
         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
         return
-    LOGGER.info(link)
     if not is_mega_link(link) and not isQbit and not is_magnet(link) \
         and not is_gdrive_link(link) and not link.endswith('.torrent'):
         content_type = get_content_type(link)
-        if content_type is None or match(r'text/html|text/plain', content_type):
-            _tempmsg = sendMessage(f"Processing: <code>{link}</code>", bot, message)
+        if content_type is None or re_match(r'text/html|text/plain', content_type):
             try:
                 is_gdtot = is_gdtot_link(link)
                 is_unified = is_unified_link(link)
@@ -320,54 +313,62 @@ def start_ml(extra, s_listener):
                 is_filepress = is_filepress_link(link)
                 link = direct_link_generator(link)
                 LOGGER.info(f"Generated link: {link}")
-                editMessage(f"Generated link: <code>{link}</code>", _tempmsg)
             except DirectDownloadLinkException as e:
                 LOGGER.info(str(e))
                 if str(e).startswith('ERROR:'):
-                    return editMessage(escape(str(e)), _tempmsg)
-            _tempmsg.delete()
+                    return sendMessage(str(e), bot, message)
     elif isQbit and not is_magnet(link):
         if link.endswith('.torrent') or "https://api.telegram.org/file/" in link:
             content_type = None
         else:
             content_type = get_content_type(link)
-        if content_type is None or match(r'application/x-bittorrent|application/octet-stream', content_type):
+        if content_type is None or re_match(r'application/x-bittorrent|application/octet-stream', content_type):
             try:
-                resp = request('GET', link, timeout=10, headers = {'user-agent': 'Wget/1.12'})
-                if resp.status_code != 200:
+                resp = rget(link, timeout=10, headers = {'user-agent': 'Wget/1.12'})
+                if resp.status_code == 200:
+                    file_name = str(time()).replace(".", "") + ".torrent"
+                    with open(file_name, "wb") as t:
+                        t.write(resp.content)
+                    link = str(file_name)
+                else:
                     return sendMessage(f"{tag} ERROR: link got HTTP response: {resp.status_code}", bot, message)
-                file_name = str(time()).replace(".", "") + ".torrent"
-                with open(file_name, "wb") as t:
-                    t.write(resp.content)
-                link = str(file_name)
             except Exception as e:
                 error = str(e).replace('<', ' ').replace('>', ' ')
                 if error.startswith('No connection adapters were found for'):
                     link = error.split("'")[1]
                 else:
                     LOGGER.error(str(e))
-                    return sendMessage(f"{tag} {error}", bot, message)
+                    return sendMessage(tag + " " + error, bot, message)
         else:
-            msg = "qBittorrent for torrents only. if you are trying to dowload torrent then report."
+            msg = "Qb commands for torrents only. if you are trying to dowload torrent then report."
             return sendMessage(msg, bot, message)
+
     if is_gdrive_link(link):
-        Thread(target=add_gd_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepress)).start()
+        if not isZip and not extract and not isLeech:
+            gmsg = f"Use /{BotCommands.CloneCommand[0]} to clone Google Drive file/folder\n\n"
+            gmsg += f"Use /{BotCommands.ZipMirrorCommand[0]} to make zip of Google Drive folder\n\n"
+            gmsg += f"Use /{BotCommands.UnzipMirrorCommand[0]} to extracts Google Drive archive file"
+            sendMessage(gmsg, bot, message)
+        else:
+            Thread(target=add_gd_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepress)).start()
     elif is_mega_link(link):
-        listener.ismega = sendMessage("💡 <b>Mega link this might take a minutes</b>", bot, message)
         Thread(target=add_mega_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}/', listener, name)).start()
-    elif isQbit and (is_magnet(link) or path.exists(link)):
-        Thread(target=add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, ratio, seed_time)).start()
+    elif isQbit and (is_magnet(link) or ospath.exists(link)):
+        Thread(target=add_qb_torrent, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener,
+                                            ratio, seed_time)).start()
     else:
         mesg = message.text.split('\n')
         if len(mesg) > 1:
             ussr = mesg[1]
-            pssw = mesg[2] if len(mesg) > 2 else ''
+            if len(mesg) > 2:
+                pssw = mesg[2]
+            else:
+                pssw = ''
             auth = f"{ussr}:{pssw}"
             auth = "Basic " + b64encode(auth.encode()).decode('ascii')
         else:
             auth = ''
         Thread(target=add_aria2c_download, args=(link, f'{DOWNLOAD_DIR}{listener.uid}', listener, name, auth, ratio, seed_time)).start()
-
 
 @new_thread
 def mir_confirm(update, context):
