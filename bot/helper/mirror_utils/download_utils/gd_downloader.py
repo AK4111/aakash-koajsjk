@@ -97,9 +97,6 @@ def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udri
                 download_dict[listener.uid] = QueueStatus(name, size, gid, listener, 'Dl')
             listener.onDownloadStart()
             sendStatusMessage(listener.message, listener.bot)
-            drive.download(link)
-            if (is_gdtot or is_unified or is_udrive or is_sharer or is_sharedrive):
-                drive.deletefile(link)
             return
     drive = GoogleDriveHelper(name, path, size, listener)
     with download_dict_lock:
@@ -110,6 +107,9 @@ def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udri
         LOGGER.info(f"Download from GDrive: {name}")
         listener.onDownloadStart()
         sendStatusMessage(listener.message, listener.bot)
+        drive.download(link)
+        if (is_gdtot or is_unified or is_udrive or is_sharer or is_sharedrive):
+            drive.deletefile(link)
     else:
         LOGGER.info(f'Start Queued Download from GDrive: {name}')
 
