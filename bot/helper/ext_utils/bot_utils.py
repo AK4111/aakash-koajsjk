@@ -69,6 +69,7 @@ class EngineStatus:
     STATUS_EXT = "Extract | pExtract⚔️"
     STATUS_SPLIT_MERGE = "FFmpeg🍿"
     STATUS_ZIP = "p7zip🛠"
+    STATUS_QUEUE = "Sleep💤"
 
     
 SIZE_UNITS = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
