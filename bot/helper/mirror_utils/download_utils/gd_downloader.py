@@ -90,7 +90,7 @@ def add_gd_download(link, path, listener, newname, is_gdtot, is_unified, is_udri
             up = len(non_queued_up)
             if (all_limit and dl + up >= all_limit and (not dl_limit or dl >= dl_limit)) or (dl_limit and dl >= dl_limit):
                 added_to_queue = True
-                queued_dl[listener.uid] = ['gd', link, path, listener, newname]
+                queued_dl[listener.uid] = ['gd', link, path, listener, newname, is_gdtot, is_unified, is_udrive, is_sharer, is_sharedrive, is_filepress]
         if added_to_queue:
             LOGGER.info(f"Added to Queue/Download: {name}")
             with download_dict_lock:
