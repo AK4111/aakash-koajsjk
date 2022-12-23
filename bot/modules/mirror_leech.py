@@ -205,6 +205,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                 return
             else:
                 link = file_.get_file().file_path
+    extras[0] = link 
 
     if not is_url(link) and not is_magnet(link):
         help_msg = "<b>Send link along with command line:</b>"
@@ -243,7 +244,6 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         return reply_message
 
     LOGGER.info(f"Link: {link}")
-    LOGGER.info(shwbtns)
     if ((len(CATEGORY_NAMES) > 1 and len(CATUSR) == 0) or (len(CATEGORY_NAMES) >= 1 and len(CATUSR) > 1)) and not isLeech and shwbtns:
         btn_listener[msg_id] = [catlistener, extras, timeout]
         text, btns = get_category_buttons('mir', timeout, msg_id, c_index, u_index, user_id)
@@ -296,7 +296,7 @@ def start_ml(extra, s_listener):
     seed_time = extra[3]
     c_index = int(extra[4])
     u_index = extra[5]
-
+    LOGGER.info(f"1: {link}")
     listener = MirrorLeechListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, select, seed, c_index, u_index)
     if link == 'tg_file':
         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
@@ -319,6 +319,7 @@ def start_ml(extra, s_listener):
                 if str(e).startswith('ERROR:'):
                     return sendMessage(str(e), bot, message)
     elif isQbit and not is_magnet(link):
+        LOGGER.info(f"2: {link}")
         if link.endswith('.torrent') or "https://api.telegram.org/file/" in link:
             content_type = None
         else:
