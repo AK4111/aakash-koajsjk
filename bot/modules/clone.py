@@ -99,7 +99,7 @@ def _clone(message, bot):
                         shwbtns = False
                         c_index = ltds.index(dname.lower())
             elif x.isdigit():
-                multi = int(link)
+                multi = int(x)
                 mi = index
                 link = ''
         if multi == 0:
