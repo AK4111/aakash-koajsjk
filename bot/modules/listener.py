@@ -264,18 +264,17 @@ class MirrorLeechListener:
         message_args = mesg[0].split(maxsplit=1)
         reply_to = self.message.reply_to_message
         user_id_ = self.message.from_user.id
-        file_ = escape(name)
-        up_path, file_, _ = change_filename(file_, user_id_, all_edit=False, mirror_type=(False if self.isLeech else True))
+        up_path, name, _ = change_filename(name, user_id_, all_edit=False, mirror_type=(False if self.isLeech else True))
         
         BOT_PM_X = get_bot_pm(user_id_)     
         
         NAME_FONT = config_dict['NAME_FONT']
         if config_dict['EMOJI_THEME']:
-            slmsg = f"🗂️ Name: <{NAME_FONT}>{file_}</{NAME_FONT}>\n\n"
+            slmsg = f"🗂️ Name: <{NAME_FONT}>{escape(name)}</{NAME_FONT}>\n\n"
             slmsg += f"📐 Size: {size}\n"
             slmsg += f"👥 Added by: {self.tag} | <code>{self.user_id}</code>\n\n"
         else:
-            slmsg = f"Name: <{NAME_FONT}>{file_}</{NAME_FONT}>\n\n"
+            slmsg = f"Name: <{NAME_FONT}>{escape(name)}</{NAME_FONT}>\n\n"
             slmsg += f"Size: {size}\n"
             slmsg += f"Added by: {self.tag} | <code>{self.user_id}</code>\n\n"
         if 'link_logs' in user_data:
@@ -346,9 +345,9 @@ class MirrorLeechListener:
 
         if BOT_PM_X and not self.isPrivate:
             if config_dict['EMOJI_THEME']:
-                msg = f"<b>🗂️ Name: </b><{config_dict['NAME_FONT']}>{file_}</{config_dict['NAME_FONT']}>\n"
+                msg = f"<b>🗂️ Name: </b><{config_dict['NAME_FONT']}>{escape(name)}</{config_dict['NAME_FONT']}>\n"
             else:
-                msg = f"<b>Name: </b><{config_dict['NAME_FONT']}>{file_}</{config_dict['NAME_FONT']}>\n"
+                msg = f"<b>Name: </b><{config_dict['NAME_FONT']}>{escape(name)}</{config_dict['NAME_FONT']}>\n"
             botpm = f"<b>\nHey {self.tag}!, I have sent your stuff in PM.</b>\n"
             buttons = ButtonMaker()
             b_uname = bot.get_me().username
@@ -369,9 +368,9 @@ class MirrorLeechListener:
                 reply_to.delete()
 
         if config_dict['EMOJI_THEME']:
-            msg = f"<b>╭🗂️ Name: </b><{config_dict['NAME_FONT']}>{file_}</{config_dict['NAME_FONT']}>\n<b>├📐 Size: </b>{size}"
+            msg = f"<b>╭🗂️ Name: </b><{config_dict['NAME_FONT']}>{escape(name)}</{config_dict['NAME_FONT']}>\n<b>├📐 Size: </b>{size}"
         else:
-            msg = f"<b>╭ Name: </b><{config_dict['NAME_FONT']}>{file_}</{config_dict['NAME_FONT']}>\n<b>├ Size: </b>{size}"
+            msg = f"<b>╭ Name: </b><{config_dict['NAME_FONT']}>{escape(name)}</{config_dict['NAME_FONT']}>\n<b>├ Size: </b>{size}"
 
         if self.isLeech:
             if config_dict['SOURCE_LINK']:
@@ -513,11 +512,11 @@ class MirrorLeechListener:
                 pass
             else:
                 buttons.buildbutton("☁️ Drive Link", link)
-            LOGGER.info(f'Done Uploading {file_}')
+            LOGGER.info(f'Done Uploading {name}')
             _, INDEXURL = getGDriveUploadUtils(user_id_, self.u_index, self.c_index)
             if INDEX_URL:= INDEXURL:
-                url_path = rquote(f'{file_}', safe='')
-                LOGGER.info(file_)
+                url_path = rquote(f'{name}', safe='')
+                LOGGER.info(name)
                 share_url = f'{INDEX_URL}/{url_path}'
                 if typ == "Folder":
                     share_url += '/'
