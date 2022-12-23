@@ -289,7 +289,6 @@ def start_ml(extra, s_listener):
     tag = s_listener[7]
     select = s_listener[8]
     seed = s_listener[9]
-    raw_url = s_listener[10]
     link = extra[0]
     name = extra[1]
     ratio = extra[2]
@@ -302,7 +301,7 @@ def start_ml(extra, s_listener):
         gmsg += f"Use /{BotCommands.UnzipMirrorCommand[0]} to extracts Google Drive archive folder/file\n\n"
         gmsg += f"Use /{BotCommands.LeechCommand[0]} to upload on telegram"
         return sendMessage(gmsg, bot, message)
-    listener = MirrorLeechListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, select, seed, raw_url, c_index, u_index)
+    listener = MirrorLeechListener(bot, message, isZip, extract, isQbit, isLeech, pswd, tag, select, seed, c_index, u_index)
     if link == 'tg_file':
         Thread(target=TelegramDownloadHelper(listener).add_download, args=(message, f'{DOWNLOAD_DIR}{listener.uid}/', name)).start()
         return
