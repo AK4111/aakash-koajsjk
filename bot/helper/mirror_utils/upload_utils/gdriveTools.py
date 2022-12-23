@@ -1,7 +1,7 @@
 from asyncio import exceptions
 from logging import getLogger, ERROR
 from time import time
-from pickle import load as pload, dump as pdump
+from pickle import load as pload
 from json import loads as jsnloads
 from os import makedirs, path as ospath, listdir, remove as osremove
 from requests.utils import quote as rquote
@@ -15,7 +15,6 @@ from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type, RetryError
 from bot.helper.ext_utils.html_helper import hmtl_content
-from google.auth.transport.requests import Request
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot import config_dict, DRIVES_NAMES, DRIVES_IDS, INDEX_URLS, GLOBAL_EXTENSION_FILTER, user_data
 from bot.helper.ext_utils.telegraph_helper import telegraph
@@ -95,11 +94,6 @@ class GoogleDriveHelper:
             LOGGER.info("Authorize with token.pickle")
             with open(self.__G_DRIVE_TOKEN_FILE, 'rb') as f:
                 credentials = pload(f)
-            if credentials and not credentials.valid and credentials.expired and credentials.refresh_token:
-                LOGGER.warning('Your token is expired! Refreshing Token...')
-                credentials.refresh(Request())
-                with open(self.__G_DRIVE_TOKEN_FILE, 'wb') as token:
-                    pdump(credentials, token)
         else:
             LOGGER.error('token.pickle not found!')
         return build('drive', 'v3', credentials=credentials, cache_discovery=False)
@@ -112,11 +106,6 @@ class GoogleDriveHelper:
                 LOGGER.info("Authorize with token.pickle")
                 with open(self.__G_DRIVE_TOKEN_FILE, 'rb') as f:
                     credentials = pload(f)
-                if credentials and not credentials.valid and credentials.expired and credentials.refresh_token:
-                    LOGGER.warning('Your token is expired! Refreshing Token...')
-                    credentials.refresh(Request())
-                    with open(self.__G_DRIVE_TOKEN_FILE, 'wb') as token:
-                        pdump(credentials, token)
                 return build('drive', 'v3', credentials=credentials, cache_discovery=False)
         return None
 
