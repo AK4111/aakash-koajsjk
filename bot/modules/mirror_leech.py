@@ -182,9 +182,9 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
             if file_ is None:
                 reply_text = reply_to.text.split(maxsplit=1)[0].strip()
                 if is_url(reply_text) or is_magnet(reply_text):
-                    extras[0] = reply_to.text.strip()
+                    link = reply_to.text.strip()
             elif isinstance(file_, list):
-                extras[0] = file_[-1].get_file().file_path
+                link = file_[-1].get_file().file_path
             elif not isQbit and file_.mime_type != "application/x-bittorrent":
                 extras[0] = 'tg_file'
                 if ((len(CATEGORY_NAMES) > 1 and len(CATUSR) == 0) or (len(CATEGORY_NAMES) >= 1 and len(CATUSR) > 1)) and not isLeech and shwbtns:
@@ -204,7 +204,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
                     Thread(target=_mirror_leech, args=(bot, nextmsg, isZip, extract, isQbit, isLeech)).start()
                 return
             else:
-                extras[0] = file_.get_file().file_path
+                link = file_.get_file().file_path
 
     if not is_url(link) and not is_magnet(link):
         help_msg = "<b>Send link along with command line:</b>"
@@ -243,6 +243,7 @@ def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeec
         return reply_message
 
     LOGGER.info(f"Link: {link}")
+    extras[0] = link 
     if ((len(CATEGORY_NAMES) > 1 and len(CATUSR) == 0) or (len(CATEGORY_NAMES) >= 1 and len(CATUSR) > 1)) and not isLeech and shwbtns:
         btn_listener[msg_id] = [catlistener, extras, timeout]
         text, btns = get_category_buttons('mir', timeout, msg_id, c_index, u_index, user_id)
