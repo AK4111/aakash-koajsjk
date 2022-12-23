@@ -290,7 +290,7 @@ class YoutubeDLHelper:
             if added_to_queue:
                 LOGGER.info(f"Added to Queue/Download: {self.name}")
                 with download_dict_lock:
-                    download_dict[self.listener.uid] = QueueStatus(self.name, self.__size, self.__gid, self.listener, 'Dl')
+                    download_dict[self.listener.uid] = QueueStatus(self.name, self.__size, self.gid, self.listener, 'Dl')
                 self.listener.onDownloadStart()
                 sendStatusMessage(self.listener.message, self.listener.bot)
                 return
