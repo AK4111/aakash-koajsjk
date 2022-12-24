@@ -9,18 +9,13 @@ from psutil import cpu_percent, disk_usage, net_io_counters, virtual_memory
 from requests import head as rhead
 from urllib.request import urlopen
 
-from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot import download_dict, download_dict_lock, botStartTime, DOWNLOAD_DIR, user_data, config_dict
-from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
-
-import shutil
-import psutil
-from telegram.error import RetryAfter
+from bot.helper.telegram_helper.bot_commands import BotCommands
+from bot.helper.telegram_helper.button_build import ButtonMaker
+from bot import LOGGER, CATEGORY_IDS, CATEGORY_INDEX, CATEGORY_NAMES, DATABASE_URL, dispatcher, download_dict, \
+                download_dict_lock, botStartTime, DOWNLOAD_DIR, user_data, config_dict
 from telegram.ext import CallbackQueryHandler
-from telegram.message import Message
-from telegram.update import Update
-from bot import *
+
 
 MAGNET_REGEX = r"magnet:\?xt=urn:btih:[a-zA-Z0-9]*"
 

@@ -14,7 +14,7 @@ from bot.helper.ext_utils.fs_utils import check_storage_threshold
 from bot.helper.mirror_utils.status_utils.convert_status import ConvertStatus
 from bot.helper.mirror_utils.status_utils.yt_dlp_download_status import YtDlpDownloadStatus
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
-from bot.helper.telegram_helper.message_utils import sendStatusMessage, sendMessage
+from bot.helper.telegram_helper.message_utils import sendStatusMessage
 from bot.helper.mirror_utils.status_utils.queue_status import QueueStatus
 
 LOGGER = getLogger(__name__)

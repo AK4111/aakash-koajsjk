@@ -2,17 +2,16 @@ from re import findall, IGNORECASE
 from imdb import IMDb
 from pycountry import countries as conn
 
-from telegram import Update, ParseMode
-from telegram.ext import run_async, CallbackContext, CommandHandler, CallbackQueryHandler
-from telegram.error import TelegramError
+from telegram import Update
+from telegram.ext import CallbackContext, CommandHandler, CallbackQueryHandler
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from pyrogram.errors.exceptions.bad_request_400 import MediaEmpty, PhotoInvalidDimensions, WebpageMediaEmpty
 
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, sendPhoto, deleteMessage
+from bot.helper.telegram_helper.message_utils import sendMessage, editMessage
 from bot.helper.ext_utils.bot_utils import get_readable_time
 from bot.helper.telegram_helper.button_build import ButtonMaker
-from bot import app, LOGGER, dispatcher, IMDB_ENABLED, DEF_IMDB_TEMP, config_dict, user_data, LIST_ITEMS
+from bot import app, LOGGER, dispatcher, IMDB_ENABLED, DEF_IMDB_TEMP, user_data, LIST_ITEMS
 
 imdb = IMDb() 
 

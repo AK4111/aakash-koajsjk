@@ -5,27 +5,26 @@ from urllib.parse import quote as q
 from random import choice as rchoice
 from os import path as ospath, remove as osremove, execl as osexecl
 from subprocess import run as srun, check_output
-from datetime import datetime, timedelta
+from datetime import datetime
 from psutil import disk_usage, cpu_percent, swap_memory, cpu_count, virtual_memory, net_io_counters, boot_time
 from time import time
 from sys import executable
-from telegram import ParseMode
-from telegram.ext import CommandHandler
 from pytz import timezone
-from bot import *
-from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
-from .helper.ext_utils.telegraph_helper import telegraph
+from telegram.ext import CommandHandler
+
 from .helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time
 from .helper.ext_utils.db_handler import DbManger
+from .helper.ext_utils.fs_utils import start_cleanup, clean_all, exit_clean_up
+from .helper.ext_utils.telegraph_helper import telegraph
 from .helper.telegram_helper.bot_commands import BotCommands
 from .helper.telegram_helper.message_utils import sendMessage, editMessage, sendLogFile, sendPhoto
 from .helper.telegram_helper.filters import CustomFilters
 from .helper.telegram_helper.button_build import ButtonMaker
-from bot.modules.wayback import getRandomUserAgent
+from bot import config_dict, botStartTime, Interval, QbInterval, LOGGER, DATABASE_URL, bot, dispatcher, updater, IGNORE_PENDING_REQUESTS, \
+                app, main_loop
 from .modules import authorize, list, cancel_mirror, mirror_status, mirror_leech, clone, ytdlp, shell, eval, bot_settings, \
                      delete, count, users_settings, search, rss, wayback, speedtest, anilist, imdb, bt_select, mediainfo, hash, \
                      scraper, pictures, save_msg, sel_cat
-from datetime import datetime
 
 version = "4.4.0"
 
@@ -152,7 +151,7 @@ def start(update, context):
     buttons = ButtonMaker()
     if config_dict['EMOJI_THEME']:
         buttons.buildbutton(f"😎 {config_dict['START_BTN1_NAME']}", f"{config_dict['START_BTN1_URL']}")
-        buttons.buildbutton(f"🔥 {config_dict['START_BTN2_NAME']}", f"{START_BTN2_URL}")
+        buttons.buildbutton(f"🔥 {config_dict['START_BTN2_NAME']}", f"{config_dict['START_BTN2_URL']}")
     else:
         buttons.buildbutton(f"{config_dict['START_BTN1_NAME']}", f"{config_dict['START_BTN1_URL']}")
         buttons.buildbutton(f"{config_dict['START_BTN2_NAME']}", f"{config_dict['START_BTN2_URL']}")

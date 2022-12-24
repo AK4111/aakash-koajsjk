@@ -1,21 +1,16 @@
 from base64 import b64encode
 from requests import get as rget
-from pyrogram import enums
-from re import match as re_match, search as re_search, split as re_split
+from re import match as re_match, split as re_split
 from time import sleep, time
-from os import path as ospath, remove as osremove, listdir, walk
-from shutil import rmtree
+from os import path as ospath
 from threading import Thread
-from subprocess import run as srun
-from pathlib import PurePath
 from telegram.ext import CommandHandler, CallbackQueryHandler
-from telegram import ParseMode, InlineKeyboardButton
 
-from bot import *
-from bot.helper.ext_utils.bot_utils import *
+from bot.helper.ext_utils.bot_utils import get_bot_pm, is_paid, is_sudo, getdailytasks, get_user_task, getUserTDs, is_url, \
+        is_magnet, get_category_buttons, is_mega_link, is_gdrive_link, get_content_type, is_gdtot_link, is_unified_link, \
+        is_udrive_link, is_sharer_link, is_sharedrive_link, is_filepress_link, new_thread
+from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 from bot.helper.ext_utils.timegap import timegap_check
-from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupportedExtractionArchive
-from bot.helper.ext_utils.shortenurl import short_url
 from bot.helper.mirror_utils.download_utils.aria2_download import add_aria2c_download
 from bot.helper.mirror_utils.download_utils.gd_downloader import add_gd_download
 from bot.helper.mirror_utils.download_utils.qbit_downloader import add_qb_torrent
@@ -24,11 +19,10 @@ from bot.helper.mirror_utils.download_utils.direct_link_generator import direct_
 from bot.helper.mirror_utils.download_utils.telegram_downloader import TelegramDownloadHelper
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, delete_all_messages, update_all_messages, forcesub, auto_delete_upload_message, auto_delete_message, isAdmin
-from bot.helper.ext_utils.telegraph_helper import telegraph
+from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, forcesub, auto_delete_message, isAdmin
 from bot.helper.telegram_helper.button_build import ButtonMaker
+from bot import LOGGER, download_dict, config_dict, OWNER_ID, TIME_GAP_STORE, CATEGORY_NAMES, btn_listener, DOWNLOAD_DIR, dispatcher
 from .listener import MirrorLeechListener
-
 
 def _mirror_leech(bot, message, isZip=False, extract=False, isQbit=False, isLeech=False):
     buttons = ButtonMaker()

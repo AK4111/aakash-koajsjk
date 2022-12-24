@@ -1,17 +1,16 @@
-from requests import post as rpost
+from requests import post as rpost, requests
 from random import choice
 from datetime import datetime
 from calendar import month_name
 from pycountry import countries as conn
 from urllib.parse import quote as q
 
-import requests
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
-from telegram.ext import run_async, CallbackContext, CommandHandler, CallbackQueryHandler
+from telegram.ext import CallbackContext, CommandHandler, CallbackQueryHandler
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, sendPhoto
+from bot.helper.telegram_helper.message_utils import sendMessage, sendPhoto
 from bot.helper.ext_utils.bot_utils import get_readable_time
-from bot import LOGGER, dispatcher, IMAGE_URL, ANILIST_ENABLED, DEF_ANI_TEMP, config_dict, user_data
+from bot import LOGGER, dispatcher, IMAGE_URL, ANILIST_ENABLED, DEF_ANI_TEMP, user_data
 
 GENRES_EMOJI = {"Action": "👊", "Adventure": choice(['🪂', '🧗‍♀']), "Comedy": "🤣", "Drama": " 🎭", "Ecchi": choice(['💋', '🥵']), "Fantasy": choice(['🧞', '🧞‍♂', '🧞‍♀','🌗']), "Hentai": "🔞", "Horror": "☠", "Mahou Shoujo": "☯", "Mecha": "🤖", "Music": "🎸", "Mystery": "🔮", "Psychological": "♟", "Romance": "💞", "Sci-Fi": "🛸", "Slice of Life": choice(['☘','🍁']), "Sports": "⚽️", "Supernatural": "🫧", "Thriller": choice(['🥶', '🔪','🤯'])}
 

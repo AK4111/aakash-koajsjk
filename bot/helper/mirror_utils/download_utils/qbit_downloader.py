@@ -4,19 +4,16 @@ from bencoding import bencode, bdecode
 from time import sleep, time
 from re import search as re_search
 from os import remove
-from os import path as ospath, listdir
 from time import sleep, time
 from re import search as re_search
 from threading import Lock, Thread
 
-from bot import download_dict, download_dict_lock, get_client, config_dict, \
-                QbInterval, user_data, LOGGER, OWNER_ID
+from bot import download_dict, download_dict_lock, get_client, config_dict, QbInterval, user_data, LOGGER, OWNER_ID
 from bot.helper.mirror_utils.status_utils.qbit_download_status import QbDownloadStatus
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.telegram_helper.message_utils import sendMessage, deleteMessage, sendStatusMessage, update_all_messages, sendFile
 from bot.helper.ext_utils.bot_utils import get_readable_file_size, get_readable_time, setInterval, bt_selection_buttons, getDownloadByGid, new_thread, is_sudo, is_paid, getdailytasks
 from bot.helper.ext_utils.fs_utils import clean_unwanted, get_base_name, check_storage_threshold
-from bot.helper.telegram_helper import button_build
 
 qb_download_lock = Lock()
 STALLED_TIME = {}

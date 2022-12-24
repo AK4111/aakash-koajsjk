@@ -8,7 +8,7 @@ from mega import (MegaApi, MegaListener, MegaRequest, MegaTransfer, MegaError)
 from bot import LOGGER, download_dict, download_dict_lock, config_dict, \
                 user_data, OWNER_ID, non_queued_dl, non_queued_up, queued_dl, queue_dict_lock
 from bot.helper.telegram_helper.message_utils import sendMessage, sendStatusMessage, sendStatusMessage, sendFile
-from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval, get_mega_link_type, is_sudo, is_paid, getdailytasks
+from bot.helper.ext_utils.bot_utils import get_readable_file_size, get_mega_link_type, is_sudo, is_paid, getdailytasks
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.status_utils.queue_status import QueueStatus
 from bot.helper.ext_utils.fs_utils import get_base_name, check_storage_threshold
@@ -272,6 +272,3 @@ def add_mega_download(mega_link, path, listener, name, from_queue=False):
     if folder_api is not None:
         folder_api.removeListener(mega_listener)
 
-    # def cancel_download(self):
-    #     LOGGER.info(f'Cancelling download on user request: {self.gid}')
-    #     self.__mega_client.cancelDl(self.gid)

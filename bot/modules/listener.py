@@ -1,36 +1,32 @@
-from subprocess import run as srun
 from random import choice
-from pathlib import PurePath
-from telegram.ext import CommandHandler
-from re import match as re_match, search as re_search, split as re_split
+from re import search as re_search
 from time import sleep, time
-from base64 import b64encode
-from shutil import rmtree
 from os import path as ospath, remove as osremove, listdir, walk
 from subprocess import Popen
 from html import escape
 from threading import Thread
-from telegram import ParseMode, InlineKeyboardButton
 from requests.utils import quote as rquote
-from bot import *
-from bot.helper.ext_utils.bot_utils import *
+from telegram import ParseMode
+
+from bot.helper.ext_utils.bot_utils import change_filename, get_bot_pm, is_url, is_magnet, get_readable_time, getGDriveUploadUtils
+from bot.helper.ext_utils.db_handler import DbManger
+from bot.helper.ext_utils.exceptions import NotSupportedExtractionArchive
 from bot.helper.ext_utils.fs_utils import get_base_name, get_path_size, split_file, clean_download, clean_target
-from bot.helper.ext_utils.exceptions import DirectDownloadLinkException, NotSupportedExtractionArchive
 from bot.helper.ext_utils.queued_starter import start_from_queued
+from bot.helper.ext_utils.shortenurl import short_url
+from bot.helper.ext_utils.telegraph_helper import telegraph
 from bot.helper.mirror_utils.status_utils.extract_status import ExtractStatus
 from bot.helper.mirror_utils.status_utils.zip_status import ZipStatus
 from bot.helper.mirror_utils.status_utils.split_status import SplitStatus
 from bot.helper.mirror_utils.status_utils.upload_status import UploadStatus
-from bot.helper.ext_utils.shortenurl import short_url
 from bot.helper.mirror_utils.status_utils.tg_upload_status import TgUploadStatus
 from bot.helper.mirror_utils.status_utils.queue_status import QueueStatus
 from bot.helper.mirror_utils.upload_utils.gdriveTools import GoogleDriveHelper
 from bot.helper.mirror_utils.upload_utils.pyrogramEngine import TgUploader
-from bot.helper.telegram_helper.message_utils import sendMessage, delete_all_messages, update_all_messages, auto_delete_upload_message, sendPhoto
 from bot.helper.telegram_helper.button_build import ButtonMaker
-from bot.helper.ext_utils.db_handler import DbManger
-from bot.helper.ext_utils.telegraph_helper import telegraph
-
+from bot.helper.telegram_helper.message_utils import sendMessage, delete_all_messages, update_all_messages, auto_delete_upload_message, sendPhoto
+from bot import aria2, bot, DOWNLOAD_DIR, LOGGER, Interval, config_dict, user_data, DATABASE_URL, download_dict_lock, download_dict, \
+                queue_dict_lock, non_queued_dl, non_queued_up, queued_up, queued_dl, tgBotMaxFileSize, status_reply_dict_lock
 
 class MirrorLeechListener:
     def __init__(self, bot, message, isZip=False, extract=False, isQbit=False, isLeech=False, pswd=None, tag=None, select=False, seed=False, c_index=0, u_index=None):

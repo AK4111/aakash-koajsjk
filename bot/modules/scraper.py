@@ -3,11 +3,11 @@ import cloudscraper
 import concurrent.futures
 
 from copy import deepcopy
-from re import S, match as rematch, findall, sub as resub, compile as recompile
+from re import S, match as rematch, sub as resub, compile as recompile
 from asyncio import sleep as asleep
 from time import sleep
-from urllib.parse import urlparse, unquote, quote
-from requests import get as rget, head as rhead, post as rpost
+from urllib.parse import unquote, quote
+from requests import get as rget, post as rpost
 from bs4 import BeautifulSoup, NavigableString, Tag
 from base64 import b64decode, b64encode
 
@@ -16,10 +16,9 @@ from telegram.ext import CommandHandler
 from bot import LOGGER, dispatcher, config_dict, OWNER_ID
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, deleteMessage
+from bot.helper.telegram_helper.message_utils import sendMessage, editMessage
 from bot.helper.ext_utils.bot_utils import is_paid, is_sudo, get_readable_file_size
 from bot.helper.mirror_utils.download_utils.direct_link_generator import rock, try2link, ez4, ouo
-from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 
 next_page = False
 next_page_token = ""

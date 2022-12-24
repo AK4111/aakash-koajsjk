@@ -16,9 +16,9 @@ from googleapiclient.http import MediaFileUpload, MediaIoBaseDownload
 from tenacity import retry, wait_exponential, stop_after_attempt, retry_if_exception_type, RetryError
 from bot.helper.ext_utils.html_helper import hmtl_content
 from bot.helper.telegram_helper.button_build import ButtonMaker
-from bot import config_dict, DRIVES_NAMES, DRIVES_IDS, INDEX_URLS, GLOBAL_EXTENSION_FILTER, user_data
+from bot import config_dict, DRIVES_NAMES, DRIVES_IDS, INDEX_URLS, GLOBAL_EXTENSION_FILTER
 from bot.helper.ext_utils.telegraph_helper import telegraph
-from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval, change_filename, is_paid, getGDriveUploadUtils
+from bot.helper.ext_utils.bot_utils import get_readable_file_size, setInterval, change_filename, getGDriveUploadUtils
 from bot.helper.ext_utils.fs_utils import get_mime_type
 from bot.helper.ext_utils.shortenurl import short_url
 

@@ -1,13 +1,3 @@
-# Copyright (C) 2019 The Raphielscape Company LLC.
-#
-# Licensed under the Raphielscape Public License, Version 1.c (the "License");
-# you may not use this file except in compliance with the License.
-
-""" Helper Module containing various sites direct links generators. This module is copied and modified as per need
-from https://github.com/AvinashReddy3108/PaperplaneExtended . I hereby take no credit of the following code other
-than the modifications. See https://github.com/AvinashReddy3108/PaperplaneExtended/commits/master/userbot/modules/direct_links.py
-for original authorship. """
-
 import requests
 import cloudscraper
 
@@ -15,7 +5,7 @@ from math import pow, floor
 from requests import get as rget, head as rhead, post as rpost, Session as rsession
 from re import findall as re_findall, sub as re_sub, match as re_match, search as re_search, compile as re_compile, DOTALL
 from time import sleep, time
-from urllib.parse import urlparse, unquote, parse_qs
+from urllib.parse import urlparse, unquote
 from json import loads as jsonloads
 from lk21 import Bypass
 from lxml import etree
@@ -26,7 +16,7 @@ from playwright.sync_api import Playwright, sync_playwright, expect
 
 from bot import LOGGER, config_dict
 from bot.helper.telegram_helper.bot_commands import BotCommands
-from bot.helper.ext_utils.bot_utils import *
+from bot.helper.ext_utils.bot_utils import is_gdtot_link, is_unified_link, is_udrive_link, is_sharer_link, is_sharedrive_link, is_filepress_link
 from bot.helper.ext_utils.exceptions import DirectDownloadLinkException
 
 fmed_list = ['fembed.net', 'fembed.com', 'femax20.com', 'fcdn.stream', 'feurl.com', 'layarkacaxxi.icu',

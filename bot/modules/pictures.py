@@ -1,12 +1,11 @@
 from os import remove as osremove, mkdir, path as ospath
 from time import sleep
 from telegraph import upload_file
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, ConversationHandler
+from telegram.ext import CommandHandler, CallbackQueryHandler
 
-from bot import user_data, dispatcher, LOGGER, config_dict, DATABASE_URL, OWNER_ID
+from bot import dispatcher, LOGGER, config_dict, DATABASE_URL
 from bot.helper.telegram_helper.message_utils import sendMessage, editMessage, sendPhoto, deleteMessage, editPhoto
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.ext_utils.db_handler import DbManger
 from bot.helper.telegram_helper.button_build import ButtonMaker
 
