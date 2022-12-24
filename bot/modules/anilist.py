@@ -1,7 +1,8 @@
-from requests import post as rpost, requests
+from requests import post as rpost
 from random import choice
 from datetime import datetime
 from calendar import month_name
+import requests
 from pycountry import countries as conn
 from urllib.parse import quote as q
 
