@@ -2,7 +2,6 @@ from requests import post as rpost
 from random import choice
 from datetime import datetime
 from calendar import month_name
-import requests
 from pycountry import countries as conn
 from urllib.parse import quote as q
 
@@ -10,44 +9,11 @@ from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMo
 from telegram.ext import CallbackContext, CommandHandler, CallbackQueryHandler
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import sendMessage, sendPhoto
+from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.bot_utils import get_readable_time
 from bot import LOGGER, dispatcher, IMAGE_URL, ANILIST_ENABLED, DEF_ANI_TEMP, user_data
 
 GENRES_EMOJI = {"Action": "👊", "Adventure": choice(['🪂', '🧗‍♀']), "Comedy": "🤣", "Drama": " 🎭", "Ecchi": choice(['💋', '🥵']), "Fantasy": choice(['🧞', '🧞‍♂', '🧞‍♀','🌗']), "Hentai": "🔞", "Horror": "☠", "Mahou Shoujo": "☯", "Mecha": "🤖", "Music": "🎸", "Mystery": "🔮", "Psychological": "♟", "Romance": "💞", "Sci-Fi": "🛸", "Slice of Life": choice(['☘','🍁']), "Sports": "⚽️", "Supernatural": "🫧", "Thriller": choice(['🥶', '🔪','🤯'])}
-
-#### ----- No USE
-airing_query = '''
-    query ($id: Int,$search: String) { 
-        Media (id: $id, type: ANIME,search: $search) { 
-            id
-            episodes
-            title {
-                romaji
-                english
-                native
-            }
-            nextAiringEpisode {
-            airingAt
-            timeUntilAiring
-            episode
-        } 
-    }
-}
-'''
-
-fav_query = """
-query ($id: Int) { 
-    Media (id: $id, type: ANIME) { 
-        id
-        title {
-            romaji
-            english
-            native
-        }
-    }
-}
-"""
-#### ----- No USE
 
 ANIME_GRAPHQL_QUERY = """
 query ($id: Int, $idMal: Int, $search: String) {
@@ -287,16 +253,15 @@ def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
         bannerimg = animeResp['bannerImage'] or ''
         coverimg = animeResp['coverImage']['large'] or ''
         title_img = f"https://img.anili.st/media/{siteid}"
-        buttons = [
-            [InlineKeyboardButton("AniList Info 🎬", url=siteurl)],
-            [InlineKeyboardButton("Reviews 📑", callback_data=f"anime {user_id} rev {siteid}"),
-            InlineKeyboardButton("Tags 🎯", callback_data=f"anime {user_id} tags {siteid}"),
-            InlineKeyboardButton("Relations 🧬", callback_data=f"anime {user_id} rel {siteid}")],
-            [InlineKeyboardButton("Streaming Sites 📊", callback_data=f"anime {user_id} sts {siteid}"),
-            InlineKeyboardButton("Characters 👥️️", callback_data=f"anime {user_id} cha {siteid}")]
-        ]
+        btns = ButtonMaker()
+        btns.buildbutton("AniList Info 🎬", siteurl, 'header')
+        btns.sbutton("Reviews 📑", f"anime {user_id} rev {siteid}")
+        btns.sbutton("Tags 🎯", f"anime {user_id} tags {siteid}")
+        btns.sbutton("Relations 🧬", f"anime {user_id} rel {siteid}")
+        btns.sbutton("Streaming Sites 📊", f"anime {user_id} sts {siteid}")
+        btns.sbutton("Characters 👥️️", f"anime {user_id} cha {siteid}")
         if trailer:
-            buttons[0].insert(1, InlineKeyboardButton("Trailer 🎞", url=trailer))
+            btns.buildbutton("Trailer 🎞", trailer, 'header')
         aniListTemp = ''
         if user_id in user_data:
             aniListTemp = user_data[user_id].get('ani_temp', '')
@@ -308,10 +273,10 @@ def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
             template = DEF_ANI_TEMP
             LOGGER.error(f"AniList Error: {e}")
         if aniid:
-            return template, buttons
+            return template, btns.build_menu(3)
         else:
-            try: message.reply_photo(photo = title_img, caption = template, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
-            except: message.reply_photo(photo = 'https://te.legra.ph/file/8a5155c0fc61cc2b9728c.jpg', caption = template, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
+            try: message.reply_photo(photo = title_img, caption = template, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(3))
+            except: message.reply_photo(photo = 'https://te.legra.ph/file/8a5155c0fc61cc2b9728c.jpg', caption = template, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(3))
   
 def setAnimeButtons(update, context):
     query = update.callback_query
@@ -369,7 +334,7 @@ def character(update: Update, _):
         return
     search = search[1]
     variables = {'query': search}
-    json = requests.post(url, json={'query': character_query, 'variables': variables}).json()['data'].get('Character', None)
+    json = rpost(url, json={'query': character_query, 'variables': variables}).json()['data'].get('Character', None)
     if json:
         msg = f"*{json.get('name').get('full')}*(`{json.get('name').get('native')}`)\n"
         description = f"{json['description']}"
@@ -389,7 +354,7 @@ def manga(update: Update, _):
         return
     search = search[1]
     variables = {'search': search}
-    json = requests.post(url, json={'query': manga_query, 'variables': variables}).json()['data'].get('Media', None)
+    json = rpost(url, json={'query': manga_query, 'variables': variables}).json()['data'].get('Media', None)
     msg = ''
     if json:
         title, title_native = json['title'].get('romaji', False), json['title'].get('native', False)
