@@ -147,19 +147,20 @@ query ($id: Int, $idMal: Int, $search: String) {
 """
 
 character_query = """
-    query ($query: String) {
-        Character (search: $query) {
-            id
-            name {
-                first
-                last
-                full
-            }
-            siteUrl
-            image {
-                large
-            }
-            description
+query ($query: String) {
+    Character (search: $query) {
+        id
+        name {
+            first
+            last
+            full
+            native
+        }
+        siteUrl
+        image {
+            large
+        }
+        description
     }
 }
 """
@@ -173,7 +174,7 @@ query ($id: Int,$search: String) {
             english
             native
         }
-        description (asHtml: false)
+        description (asHtml: true)
         startDate{
             year
         }
@@ -189,7 +190,7 @@ query ($id: Int,$search: String) {
 """
 
 url = 'https://graphql.anilist.co'
-
+sptext = ""
 
 def anilist(update, context: CallbackContext, aniid=None, u_id=None):
     if not aniid:
@@ -324,25 +325,39 @@ def setAnimeButtons(update, context):
     message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(1))
 
 def character(update, context):
+    global sptext
+    rlp_mk = None
     search = update.message.text.split(' ', 1)
     if len(search) == 1:
-        sendMessage('Format : /character < character name >', context.bot, update.message) 
+        sendMessage('<b>Format :</b> <code>/character</code> <i>[search AniList Character]</i>', context.bot, update.message) 
         return
-    search = search[1]
-    variables = {'query': search}
-    json = rpost(url, json={'query': character_query, 'variables': variables}).json()['data'].get('Character', None)
+    json = rpost(url, json={'query': character_query, 'variables': {'query': search[1]}}).json()['data'].get('Character', None)
     if json:
-        msg = f"*{json.get('name').get('full')}*(`{json.get('name').get('native')}`)\n\n"
+        msg = f"<b>{json.get('name').get('full')}</b> (<code>{json.get('name').get('native')}</code>)\n\n"
         description = json['description']
+        site_url = json.get('siteUrl')
+        if any(['~!', '!~']) in description: #Spoiler
+            btn = ButtonMaker()
+            sptext = description.split('~!', 1)[1].rsplit('!~', 1)[0].replace('~!', '').replace('!~', '')
+            btn.sbutton("🔍 View Spoiler", "cha spoil")
+            rlp_mk = btn.build_menu(1)
+            description = description.split('~!', 1)[0]
         if len(description) > 700:  
             description = f"{description[:700]}...."
-        site_url = json.get('siteUrl')
         msg += description
         image = json.get('image', None)
         if image:
-            image = image.get('large')
-            update.effective_message.reply_photo(photo = image, caption = msg, parse_mode=ParseMode.MARKDOWN)
+            img = image.get('large')
+            update.effective_message.reply_photo(photo = img, caption = msg, parse_mode=ParseMode.HTML, reply_markup=rlp_mk)
         else: sendMessage(msg, context.bot, update.message)
+
+def setCharacButtons(update, context):
+    query = update.callback_query
+    message = query.message
+    data = query.data
+    data = data.split()
+    if data[1] == "spoil":
+        query.answer(text=sptext, show_alert=True)
 
 def manga(update, context):
     message = update.effective_message
@@ -401,9 +416,11 @@ MANGA_HANDLER = CommandHandler("manga", manga,
 WEEBHELP_HANDLER = CommandHandler("weebhelp", weebhelp,
                                         filters=anifilters | CustomFilters.authorized_user)
 anibut_handler = CallbackQueryHandler(setAnimeButtons, pattern="anime")
+chabut_handler = CallbackQueryHandler(setCharacButtons, pattern="cha")
 
 dispatcher.add_handler(ANIME_HANDLER)
 dispatcher.add_handler(CHARACTER_HANDLER)
 dispatcher.add_handler(MANGA_HANDLER)
 dispatcher.add_handler(WEEBHELP_HANDLER)
 dispatcher.add_handler(anibut_handler)
+dispatcher.add_handler(chabut_handler)
