@@ -26,7 +26,7 @@ def picture_add(update, context):
             mkdir(path)
         photo_dir = resm.photo[-1].get_file().download()
         editMessage("<b>Uploading to telegra.ph Server, Please Wait...</b>", editable)
-        sleep(1.5)
+        sleep(1)
         try:
             pic_add = f'https://graph.org{upload_file(photo_dir)[0]}'
             LOGGER.info(f"Telegraph Link : {pic_add}")
@@ -46,7 +46,7 @@ def picture_add(update, context):
     if DATABASE_URL:
         DbManger().update_config({'PICS': config_dict['PICS']})
     sleep(1.5)
-    editMessage(f"<b><i>Successfully Added to Existing Random Pictures Status List!</i></b>\n\n<b>Total Pics :</b><code>{len(config_dict['PICS'])}</code>", editable)
+    editMessage(f"<b><i>Successfully Added to Existing Photos Status List!</i></b>\n\n<b>• Total Pics : </b><code>{len(config_dict['PICS'])}</code>", editable)
 
 def pictures(update, context):
     user_id = update.message.from_user.id
@@ -59,6 +59,7 @@ def pictures(update, context):
         buttons.sbutton(">>", f"pics {user_id} turn 1")
         buttons.sbutton("Remove Photo", f"pics {user_id} remov 0")
         buttons.sbutton("Close", f"pics {user_id} close")
+        buttons.sbutton("Remove All", f"pics {data[1]} removall", 'footer')
         deleteMessage(context.bot, to_edit)
         sendPhoto(f'🌄 <b>Picture No. : 1 / {len(config_dict["PICS"])}</b>', context.bot, update.message, config_dict['PICS'][0], buttons.build_menu(2))
 
@@ -80,8 +81,10 @@ def pics_callback(update, context):
         buttons.sbutton(">>", f"pics {data[1]} turn {ind+1}")
         buttons.sbutton("Remove Photo", f"pics {data[1]} remov {ind}")
         buttons.sbutton("Close", f"pics {data[1]} close")
+        buttons.sbutton("Remove All", f"pics {data[1]} removall", 'footer')
         editPhoto(pic_info, message, config_dict['PICS'][ind], buttons.build_menu(2))
     elif data[2] == "remov":
+        if len(data) == 4: config_dict['PICS'].clear()
         config_dict['PICS'].pop(int(data[3]))
         if DATABASE_URL:
             DbManger().update_config({'PICS': config_dict['PICS']})
@@ -98,7 +101,15 @@ def pics_callback(update, context):
         buttons.sbutton(">>", f"pics {data[1]} turn {ind+1}")
         buttons.sbutton("Remove Photo", f"pics {data[1]} remov {ind}")
         buttons.sbutton("Close", f"pics {data[1]} close")
+        buttons.sbutton("Remove All", f"pics {data[1]} removall", 'footer')
         editPhoto(pic_info, message, config_dict['PICS'][ind], buttons.build_menu(2))
+    elif data[2] == 'removall':
+        config_dict['PICS'].clear()
+        if DATABASE_URL:
+            DbManger().update_config({'PICS': config_dict['PICS']})
+        query.answer(text="All Photos Successfully Deleted", show_alert=True)
+        query.message.delete()
+        sendMessage("No Photo to Show ! Add by /addpic", context.bot, update.message)
     else:
         query.answer()
         query.message.delete()
