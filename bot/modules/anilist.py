@@ -275,8 +275,8 @@ def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
         if aniid:
             return template, btns.build_menu(3)
         else:
-            try: message.reply_photo(photo = title_img, caption = template, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(3))
-            except: message.reply_photo(photo = 'https://te.legra.ph/file/8a5155c0fc61cc2b9728c.jpg', caption = template, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(3))
+            try: msg.reply_photo(photo = title_img, caption = template, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(3))
+            except: msg.reply_photo(photo = 'https://te.legra.ph/file/8a5155c0fc61cc2b9728c.jpg', caption = template, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(3))
   
 def setAnimeButtons(update, context):
     query = update.callback_query
