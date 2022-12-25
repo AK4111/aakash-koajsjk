@@ -5,7 +5,7 @@ from calendar import month_name
 from pycountry import countries as conn
 from urllib.parse import quote as q
 
-from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
+from telegram import ParseMode
 from telegram.ext import CallbackContext, CommandHandler, CallbackQueryHandler
 from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.message_utils import sendMessage, sendPhoto, editMessage
@@ -319,6 +319,8 @@ def setAnimeButtons(update, context):
     elif data[2] == "home":
         query.answer()
         msg, btns = anilist(update, context.bot, siteid, data[1])
+        message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=btns)
+        return
     message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(1))
 
 def character(update, context):
@@ -330,10 +332,10 @@ def character(update, context):
     variables = {'query': search}
     json = rpost(url, json={'query': character_query, 'variables': variables}).json()['data'].get('Character', None)
     if json:
-        msg = f"*{json.get('name').get('full')}*(`{json.get('name').get('native')}`)\n"
+        msg = f"*{json.get('name').get('full')}*(`{json.get('name').get('native')}`)\n\n"
         description = json['description']
-        if len(description) > 500:  
-            description = f"{description[:500]}...."
+        if len(description) > 700:  
+            description = f"{description[:700]}...."
         site_url = json.get('siteUrl')
         msg += description
         image = json.get('image', None)
@@ -342,7 +344,7 @@ def character(update, context):
             update.effective_message.reply_photo(photo = image, caption = msg, parse_mode=ParseMode.MARKDOWN)
         else: sendMessage(msg, context.bot, update.message)
 
-def manga(update: Update, _):
+def manga(update, context):
     message = update.effective_message
     search = message.text.split(' ', 1)
     if len(search) == 1:
@@ -363,23 +365,22 @@ def manga(update: Update, _):
         if status: msg += f"\n*Status* - `{status}`"
         if score: msg += f"\n*Score* - `{score}`"
         msg += '\n*Genres* - '
-        for x in json.get('genres', []): msg += f"{x}, "
+        for x in json.get('genres', []): msg += f"#{x}, "
         msg = msg[:-2]
         info = json['siteUrl']
-        buttons = [
-                [InlineKeyboardButton("More Info", url=info)]
-            ]
+        buttons = ButtonMaker()
+        buttons.buildbutton("AniList Info", info)
         bimage = json.get("bannerImage", False)
         image = f"https://img.anili.st/media/{json.get('id')}"
-        msg += f"_{json.get('description', None)}_"
-        msg = msg.replace('<br>', '').replace('<i>', '')
+        msg += f"\n\n_{json.get('description', None)}_"
+        msg = msg.replace('<br>', '').replace('<i>', '').replace('</i>', '')
         if image:
             try:
-                update.effective_message.reply_photo(photo = image, caption = msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
+                update.effective_message.reply_photo(photo = image, caption = msg, parse_mode=ParseMode.MARKDOWN, reply_markup=buttons.build_menu(1))
             except:
                 msg += f" [〽️]({image})"
-                update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
-        else: update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
+                update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=buttons.build_menu(1))
+        else: update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN, reply_markup=buttons.build_menu(1))
 
 def weebhelp(update, context):
     help_string = '''
