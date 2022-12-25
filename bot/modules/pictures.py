@@ -59,7 +59,7 @@ def pictures(update, context):
         buttons.sbutton(">>", f"pics {user_id} turn 1")
         buttons.sbutton("Remove Photo", f"pics {user_id} remov 0")
         buttons.sbutton("Close", f"pics {user_id} close")
-        buttons.sbutton("Remove All", f"pics {data[1]} removall", 'footer')
+        buttons.sbutton("Remove All", f"pics {user_id} removall", 'footer')
         deleteMessage(context.bot, to_edit)
         sendPhoto(f'🌄 <b>Picture No. : 1 / {len(config_dict["PICS"])}</b>', context.bot, update.message, config_dict['PICS'][0], buttons.build_menu(2))
 
