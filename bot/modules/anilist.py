@@ -8,7 +8,7 @@ from urllib.parse import quote as q
 from telegram import Update, InlineKeyboardMarkup, InlineKeyboardButton, ParseMode
 from telegram.ext import CallbackContext, CommandHandler, CallbackQueryHandler
 from bot.helper.telegram_helper.filters import CustomFilters
-from bot.helper.telegram_helper.message_utils import sendMessage, sendPhoto
+from bot.helper.telegram_helper.message_utils import sendMessage, sendPhoto, editMessage
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.bot_utils import get_readable_time
 from bot import LOGGER, dispatcher, IMAGE_URL, ANILIST_ENABLED, DEF_ANI_TEMP, user_data
@@ -193,9 +193,9 @@ url = 'https://graphql.anilist.co'
 
 def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
     if not aniid:
-        message = update.effective_message
-        user_id = update.message.from_user.id
-        squery = (message.text).split(' ', 1)
+        msg = update.message
+        user_id = msg.from_user.id
+        squery = (msg.text).split(' ', 1)
         if len(squery) == 1:
             sendMessage("<i>Provide AniList ID / Anime Name / MyAnimeList ID</i>", context.bot, update.message)
             return
@@ -285,72 +285,68 @@ def setAnimeButtons(update, context):
     data = query.data
     data = data.split()
     siteid = data[3]
-    btn = [
-        [InlineKeyboardButton("⌫ Back", callback_data = f"anime {data[1]} home {siteid}")]
-    ]
+    btns = ButtonMaker()
+    btns.sbutton("⌫ Back", f"anime {data[1]} home {siteid}")
     if user_id != int(data[1]):
         query.answer(text="Not Yours!", show_alert=True)
+        return
     elif data[2] == "tags":
         query.answer()
         aniTag = rpost(url, json={'query': ANIME_GRAPHQL_QUERY, 'variables': {'id' : siteid}}).json()['data'].get('Media', None)
         msg = "<b>Tags :</b>\n\n"
         msg += "\n".join(f"""<a href="https://anilist.co/search/anime?genres={q(x['name'])}">{x['name']}</a> {x['rank']}%""" for x in aniTag['tags'])
-        message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(btn))
     elif data[2] == "sts":
         query.answer()
         links = rpost(url, json={'query': ANIME_GRAPHQL_QUERY, 'variables': {'id' : siteid}}).json()['data'].get('Media', None)
         msg = "<b>External & Streaming Links :</b>\n\n"
         msg += "\n".join(f"""<a href="{x['url']}">{x['site']}</a>""" for x in links['externalLinks'])
-        message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(btn))
     elif data[2] == "rev":
         query.answer()
         animeResp = rpost(url, json={'query': ANIME_GRAPHQL_QUERY, 'variables': {'id' : siteid}}).json()['data'].get('Media', None)
         msg = "<b>Reviews :</b>\n\n"
         reList = animeResp['reviews']['nodes']
         msg += "\n\n".join(f"""<a href="{x['siteUrl']}">{x['summary']}</a>\n<b>Score :</b> <code>{x['score']} / 100</code>\n<i>By {x['user']['name']}</i>""" for x in reList[:8])
-        message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(btn))
     elif data[2] == "rel":
         query.answer()
         animeResp = rpost(url, json={'query': ANIME_GRAPHQL_QUERY, 'variables': {'id' : siteid}}).json()['data'].get('Media', None)
         msg = "<b>Relations :</b>\n\n"
         msg += "\n\n".join(f"""<a href="{x['node']['siteUrl']}">{x['node']['title']['english']}</a> ({x['node']['title']['romaji']})\n<b>Format</b>: <code>{x['node']['format'].capitalize()}</code>\n<b>Status</b>: <code>{x['node']['status'].capitalize()}</code>\n<b>Average Score</b>: <code>{x['node']['averageScore']}%</code>\n<b>Source</b>: <code>{x['node']['source'].capitalize()}</code>\n<b>Relation Type</b>: <code>{x.get('relationType', 'N/A').capitalize()}</code>""" for x in animeResp['relations']['edges'])
-        message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(btn))
     elif data[2] == "cha":
         query.answer()
         animeResp = rpost(url, json={'query': ANIME_GRAPHQL_QUERY, 'variables': {'id' : siteid}}).json()['data'].get('Media', None)
         msg = "<b>List of Characters :</b>\n\n"
         msg += "\n\n".join(f"""• <a href="{x['node']['siteUrl']}">{x['node']['name']['full']}</a> ({x['node']['name']['native']})\n<b>Role :</b> {x['role'].capitalize()}""" for x in (animeResp['characters']['edges'])[:8])
-        message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(btn))
     elif data[2] == "home":
         query.answer()
         msg, btns = anilist(update, context.bot, siteid, data[1])
-        message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(btns))
+    message.edit_caption(caption=msg, parse_mode=ParseMode.HTML, reply_markup=btns.build_menu(1))
 
-def character(update: Update, _):
-    message = update.effective_message
-    search = message.text.split(' ', 1)
+def character(update, context):
+    search = update.message.text.split(' ', 1)
     if len(search) == 1:
-        update.effective_message.reply_text('Format : /character < character name >') 
+        sendMessage('Format : /character < character name >', context.bot, update.message) 
         return
     search = search[1]
     variables = {'query': search}
     json = rpost(url, json={'query': character_query, 'variables': variables}).json()['data'].get('Character', None)
     if json:
         msg = f"*{json.get('name').get('full')}*(`{json.get('name').get('native')}`)\n"
-        description = f"{json['description']}"
+        description = json['description']
+        if len(description) > 500:  
+            description = f"{description[:500]}...."
         site_url = json.get('siteUrl')
-        msg += shorten(description, site_url)
+        msg += description
         image = json.get('image', None)
         if image:
             image = image.get('large')
             update.effective_message.reply_photo(photo = image, caption = msg, parse_mode=ParseMode.MARKDOWN)
-        else: update.effective_message.reply_text(msg, parse_mode=ParseMode.MARKDOWN)
+        else: sendMessage(msg, context.bot, update.message)
 
 def manga(update: Update, _):
     message = update.effective_message
     search = message.text.split(' ', 1)
     if len(search) == 1:
-        update.effective_message.reply_text('Format : /manga < manga name >') 
+        update.effective_message.reply_text('Format : /manga < manga_name >') 
         return
     search = search[1]
     variables = {'search': search}
@@ -376,7 +372,7 @@ def manga(update: Update, _):
         bimage = json.get("bannerImage", False)
         image = f"https://img.anili.st/media/{json.get('id')}"
         msg += f"_{json.get('description', None)}_"
-        msg = msg.replace('<br', '')
+        msg = msg.replace('<br>', '').replace('<i>', '')
         if image:
             try:
                 update.effective_message.reply_photo(photo = image, caption = msg, parse_mode=ParseMode.MARKDOWN, reply_markup=InlineKeyboardMarkup(buttons))
