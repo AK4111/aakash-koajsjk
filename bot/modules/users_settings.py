@@ -15,7 +15,7 @@ from bot.helper.telegram_helper.filters import CustomFilters
 from bot.helper.telegram_helper.bot_commands import BotCommands
 from bot.helper.telegram_helper.button_build import ButtonMaker
 from bot.helper.ext_utils.db_handler import DbManger
-from bot.helper.ext_utils.bot_utils import update_user_ldata, is_paid, is_sudo, get_readable_file_size, getUserTDs
+from bot.helper.ext_utils.bot_utils import update_user_ldata, is_paid, is_sudo, get_readable_file_size, getUserTDs, getdailytasks
 
 handler_dict = {}
 example_dict = {'prefix':'1. <code>@your_channel_username or Anything</code>', 
@@ -120,7 +120,7 @@ def get_user_settings(from_user, key=None):
             GDrive, _, _ = getUserTDs(user_id, force=True)
         else: usertd = "Not Exists"
         dailytlup = get_readable_file_size(config_dict['DAILY_MIRROR_LIMIT'] * 1024**3) if config_dict['DAILY_MIRROR_LIMIT'] else "Unlimited"
-        dailyup = get_readable_file_size(user_dict.get('dly_tasks')[3]) if user_dict and user_dict.get('dly_tasks') and user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id) and config_dict['DAILY_MIRROR_LIMIT'] else "Unlimited"
+        dailyup = get_readable_file_size(getdailytasks(user_id, check_mirror=True)) if config_dict['DAILY_MIRROR_LIMIT'] and user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id) else "Unlimited"
 
         buttxt = "Change/Delete Prefix" if prefix != "Not Exists" else "Set Prefix"
         buttons.sbutton(buttxt, f"userset {user_id} suniversal mprefix mirror")
@@ -177,7 +177,7 @@ def get_user_settings(from_user, key=None):
         cfont = user_dict['cfont'][0] if user_dict and user_dict.get('cfont') else "<b>Not Exists</b>"
         userlog = user_dict['userlog'] if user_dict and user_dict.get('userlog') else "Not Exists"
         dailytlle = get_readable_file_size(config_dict['DAILY_LEECH_LIMIT'] * 1024**3) if config_dict['DAILY_LEECH_LIMIT'] else "Unlimited"
-        dailyll = get_readable_file_size(user_dict.get('dly_tasks')[2]) if user_dict and user_dict.get('dly_tasks') and user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id) and config_dict['DAILY_LEECH_LIMIT'] else "Unlimited"
+        dailyll = get_readable_file_size(getdailytasks(user_id, check_leech=True)) if config_dict['DAILY_LEECH_LIMIT'] and user_id != OWNER_ID and not is_sudo(user_id) and not is_paid(user_id) else "Unlimited"
 
         if not user_dict and config_dict['AS_DOCUMENT'] or user_dict and user_dict.get('as_doc'):
             ltype = "DOCUMENT"
