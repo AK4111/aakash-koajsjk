@@ -35,7 +35,7 @@ def __onDownloadStarted(api, gid):
         STORAGE_THRESHOLD = config_dict['STORAGE_THRESHOLD']
         DAILY_MIRROR_LIMIT = config_dict['DAILY_MIRROR_LIMIT'] * 1024**3 if config_dict['DAILY_MIRROR_LIMIT'] else config_dict['DAILY_MIRROR_LIMIT']
         DAILY_LEECH_LIMIT = config_dict['DAILY_LEECH_LIMIT'] * 1024**3 if config_dict['DAILY_LEECH_LIMIT'] else config_dict['DAILY_LEECH_LIMIT']
-        if any([STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LEECH_LIMIT, STORAGE_THRESHOLD]):
+        if any([STOP_DUPLICATE, TORRENT_DIRECT_LIMIT, ZIP_UNZIP_LIMIT, LEECH_LIMIT, STORAGE_THRESHOLD, DAILY_MIRROR_LIMIT, DAILY_LEECH_LIMIT]):
             sleep(1)
             if dl := getDownloadByGid(gid):
                 listener = dl.listener()
