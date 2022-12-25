@@ -84,7 +84,6 @@ def pics_callback(update, context):
         buttons.sbutton("Remove All", f"pics {data[1]} removall", 'footer')
         editPhoto(pic_info, message, config_dict['PICS'][ind], buttons.build_menu(2))
     elif data[2] == "remov":
-        if len(data) == 4: config_dict['PICS'].clear()
         config_dict['PICS'].pop(int(data[3]))
         if DATABASE_URL:
             DbManger().update_config({'PICS': config_dict['PICS']})
