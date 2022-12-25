@@ -191,7 +191,7 @@ query ($id: Int,$search: String) {
 url = 'https://graphql.anilist.co'
 
 
-def anilist(update: Update, context: CallbackContext, aniid=None, u_id=None):
+def anilist(update, context: CallbackContext, aniid=None, u_id=None):
     if not aniid:
         msg = update.message
         user_id = msg.from_user.id
